@@ -1,0 +1,25 @@
+@Tripilot.Api_HostAddress = http://localhost:5139
+
+### Health Check - Basic
+GET {{Tripilot.Api_HostAddress}}/health
+Accept: application/json
+
+###
+
+### Health Check - API Controller
+GET {{Tripilot.Api_HostAddress}}/api/health
+Accept: application/json
+
+###
+
+### Health Check - Detailed
+GET {{Tripilot.Api_HostAddress}}/api/health/detailed
+Accept: application/json
+
+###
+
+### Swagger Documentation
+GET {{Tripilot.Api_HostAddress}}/swagger
+Accept: text/html
+
+###
