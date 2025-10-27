@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tripilot.Application.Interfaces;
 using Tripilot.Domain.Interfaces;
 using Tripilot.Infrastructure.Data;
 using Tripilot.Infrastructure.Repositories;
+using Tripilot.Infrastructure.Services;
+using Tripilot.Shared.Settings;
 
 namespace Tripilot.Infrastructure;
 
@@ -54,6 +57,10 @@ public static class DependencyInjection
         
         // Add database seeder
         services.AddScoped<DatabaseSeeder>();
+
+        // Add authentication services
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

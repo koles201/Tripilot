@@ -1,5 +1,9 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Serilog;
 using Tripilot.Infrastructure;
+using Tripilot.Shared.Settings;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -19,7 +23,37 @@ try
     // Add services to the container
     builder.Services.AddControllers();
 
-    // Add Infrastructure services (DbContext, Repositories, Unit of Work)
+    // Configure JWT Settings
+    var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName);
+    builder.Services.Configure<JwtSettings>(jwtSettings);
+
+    // Add JWT Authentication
+    var jwtSecret = jwtSettings.Get<JwtSettings>()?.Secret 
+        ?? throw new InvalidOperationException("JWT Secret is not configured");
+    
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings.Get<JwtSettings>()?.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Get<JwtSettings>()?.Audience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+    builder.Services.AddAuthorization();
+
+    // Add Infrastructure services (DbContext, Repositories, Unit of Work, Auth Services)
     builder.Services.AddInfrastructure(builder.Configuration);
 
     // Configure Swagger/OpenAPI
@@ -35,6 +69,31 @@ try
             {
                 Name = "Tripilot Team",
                 Email = "support@tripilot.com"
+            }
+        });
+
+        // Add JWT Authentication to Swagger
+        options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+            Name = "Authorization",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+
+        options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
             }
         });
     });
@@ -83,6 +142,7 @@ try
 
     app.UseCors("AllowAll");
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
