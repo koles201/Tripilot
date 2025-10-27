@@ -13,8 +13,8 @@ public class ApplicationDbContext : DbContext
     {
     }
 
-    // DbSets will be added here as entities are created
-    // Example: public DbSet<User> Users { get; set; } = null!;
+    // DbSets
+    public DbSet<User> Users { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
