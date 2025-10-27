@@ -1,4 +1,5 @@
 using Serilog;
+using Tripilot.Infrastructure;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -17,6 +18,9 @@ try
 
     // Add services to the container
     builder.Services.AddControllers();
+
+    // Add Infrastructure services (DbContext, Repositories, Unit of Work)
+    builder.Services.AddInfrastructure(builder.Configuration);
 
     // Configure Swagger/OpenAPI
     builder.Services.AddEndpointsApiExplorer();
@@ -49,6 +53,18 @@ try
     });
 
     var app = builder.Build();
+
+    // Initialize database
+    try
+    {
+        var seedData = app.Environment.IsDevelopment();
+        await DependencyInjection.InitializeDatabaseAsync(app.Services, seedData);
+        Log.Information("Database initialized successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while initializing the database");
+    }
 
     // Configure the HTTP request pipeline
     if (app.Environment.IsDevelopment())
