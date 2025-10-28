@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tripilot.Application.Common.Interfaces;
 using Tripilot.Application.Interfaces;
-using Tripilot.Domain.Interfaces;
 using Tripilot.Infrastructure.Data;
 using Tripilot.Infrastructure.Repositories;
 using Tripilot.Infrastructure.Services;

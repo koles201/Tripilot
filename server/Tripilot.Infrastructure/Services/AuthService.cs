@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Tripilot.Application.Common.Interfaces;
 using Tripilot.Application.DTOs.Auth;
 using Tripilot.Application.Interfaces;
 using Tripilot.Domain.Entities;
-using Tripilot.Domain.Interfaces;
 using Tripilot.Infrastructure.Data;
 using Tripilot.Shared.Settings;
 using BCrypt.Net;
