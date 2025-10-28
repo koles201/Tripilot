@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tripilot.Domain.Entities;
-using Tripilot.Domain.Interfaces;
+using Tripilot.Application.Common.Interfaces;
 using Tripilot.Infrastructure.Data;
 
 namespace Tripilot.Infrastructure.Repositories;
@@ -8,8 +7,8 @@ namespace Tripilot.Infrastructure.Repositories;
 /// <summary>
 /// Generic repository implementation using Entity Framework Core
 /// </summary>
-/// <typeparam name="T">Entity type that inherits from BaseEntity</typeparam>
-public class Repository<T> : IRepository<T> where T : BaseEntity
+/// <typeparam name="T">Entity type</typeparam>
+public class Repository<T> : IRepository<T> where T : class
 {
     protected readonly ApplicationDbContext _context;
     protected readonly DbSet<T> _dbSet;
@@ -33,37 +32,34 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <inheritdoc/>
-    public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
         await _dbSet.AddAsync(entity, cancellationToken);
-        return entity;
     }
 
     /// <inheritdoc/>
-    public virtual Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual void Update(T entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
         _dbSet.Update(entity);
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public virtual async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual void Delete(T entity)
     {
-        var entity = await GetByIdAsync(id, cancellationToken);
-        if (entity != null)
-        {
-            _dbSet.Remove(entity);
-        }
+        if (entity == null)
+            throw new ArgumentNullException(nameof(entity));
+
+        _dbSet.Remove(entity);
     }
 
     /// <inheritdoc/>
-    public virtual IQueryable<T> Query()
+    public virtual IQueryable<T> GetQueryable()
     {
         return _dbSet.AsQueryable();
     }

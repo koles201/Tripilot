@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
+using Tripilot.Application;
 using Tripilot.Infrastructure;
 using Tripilot.Shared.Settings;
 
@@ -52,6 +53,9 @@ try
     });
 
     builder.Services.AddAuthorization();
+
+    // Add Application services (MediatR, FluentValidation, AutoMapper)
+    builder.Services.AddApplication();
 
     // Add Infrastructure services (DbContext, Repositories, Unit of Work, Auth Services)
     builder.Services.AddInfrastructure(builder.Configuration);
@@ -117,7 +121,7 @@ try
     try
     {
         var seedData = app.Environment.IsDevelopment();
-        await DependencyInjection.InitializeDatabaseAsync(app.Services, seedData);
+        await Tripilot.Infrastructure.DependencyInjection.InitializeDatabaseAsync(app.Services, seedData);
         Log.Information("Database initialized successfully");
     }
     catch (Exception ex)
