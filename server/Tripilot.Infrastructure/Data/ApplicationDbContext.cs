@@ -16,6 +16,8 @@ public class ApplicationDbContext : DbContext
     // DbSets
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Place> Places { get; set; } = null!;
+    public DbSet<Route> Routes { get; set; } = null!;
+    public DbSet<RoutePlace> RoutePlaces { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
