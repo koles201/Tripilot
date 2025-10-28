@@ -27,40 +27,51 @@ public class AddReviewCommandHandler : IRequestHandler<AddReviewCommand, ReviewR
             throw new ArgumentException("Must provide either PlaceId or RouteId, but not both");
         }
 
-        // Check if user has already reviewed this place/route
-        var existingReview = await _unitOfWork.Repository<Review>()
-            .GetQueryable()
-            .Where(r => r.ReviewerId == request.ReviewerId && r.IsActive)
-            .Where(r => (request.PlaceId.HasValue && r.PlaceId == request.PlaceId) ||
-                       (request.RouteId.HasValue && r.RouteId == request.RouteId))
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (existingReview != null)
-        {
-            throw new InvalidOperationException("You have already reviewed this item");
-        }
-
-        // Validate that the place or route exists
+        // Check if place or route exists
         if (request.PlaceId.HasValue)
         {
-            var place = await _unitOfWork.Repository<Place>()
+            var placeExists = await _unitOfWork.Repository<Place>()
                 .GetQueryable()
-                .FirstOrDefaultAsync(p => p.Id == request.PlaceId.Value, cancellationToken);
+                .AnyAsync(p => p.Id == request.PlaceId.Value && p.IsActive, cancellationToken);
 
-            if (place == null)
+            if (!placeExists)
             {
                 throw new KeyNotFoundException($"Place with ID {request.PlaceId.Value} not found");
+            }
+
+            // Check for duplicate review
+            var existingReview = await _unitOfWork.Repository<Review>()
+                .GetQueryable()
+                .AnyAsync(r => r.PlaceId == request.PlaceId.Value && 
+                              r.ReviewerId == request.ReviewerId && 
+                              r.IsActive, cancellationToken);
+
+            if (existingReview)
+            {
+                throw new InvalidOperationException("You have already reviewed this place");
             }
         }
         else if (request.RouteId.HasValue)
         {
-            var route = await _unitOfWork.Repository<Domain.Entities.Route>()
+            var routeExists = await _unitOfWork.Repository<Domain.Entities.Route>()
                 .GetQueryable()
-                .FirstOrDefaultAsync(r => r.Id == request.RouteId.Value, cancellationToken);
+                .AnyAsync(r => r.Id == request.RouteId.Value && r.IsActive, cancellationToken);
 
-            if (route == null)
+            if (!routeExists)
             {
                 throw new KeyNotFoundException($"Route with ID {request.RouteId.Value} not found");
+            }
+
+            // Check for duplicate review
+            var existingReview = await _unitOfWork.Repository<Review>()
+                .GetQueryable()
+                .AnyAsync(r => r.RouteId == request.RouteId.Value && 
+                              r.ReviewerId == request.ReviewerId && 
+                              r.IsActive, cancellationToken);
+
+            if (existingReview)
+            {
+                throw new InvalidOperationException("You have already reviewed this route");
             }
         }
 
@@ -74,23 +85,23 @@ public class AddReviewCommandHandler : IRequestHandler<AddReviewCommand, ReviewR
             ServiceRating = request.ServiceRating,
             ValueRating = request.ValueRating,
             LocationRating = request.LocationRating,
-            ReviewerId = request.ReviewerId,
             PlaceId = request.PlaceId,
             RouteId = request.RouteId,
-            HelpfulCount = 0,
-            UnhelpfulCount = 0,
+            ReviewerId = request.ReviewerId,
+            IsActive = true,
             IsVerified = false,
             IsFlagged = false,
-            IsActive = true
+            HelpfulCount = 0,
+            UnhelpfulCount = 0
         };
 
         await _unitOfWork.Repository<Review>().AddAsync(review, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Update aggregate ratings
-        await UpdateAggregateRatings(request.PlaceId, request.RouteId, cancellationToken);
+        await UpdateAggregateRatings(review.PlaceId, review.RouteId, cancellationToken);
 
-        // Load review with related data for response
+        // Reload with related data
         var createdReview = await _unitOfWork.Repository<Review>()
             .GetQueryable()
             .Include(r => r.Reviewer)

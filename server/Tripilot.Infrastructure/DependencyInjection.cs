@@ -3,9 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tripilot.Application.Common.Interfaces;
 using Tripilot.Application.Interfaces;
+using Tripilot.Infrastructure.Configuration;
 using Tripilot.Infrastructure.Data;
 using Tripilot.Infrastructure.Repositories;
 using Tripilot.Infrastructure.Services;
+using Tripilot.Infrastructure.Services.GoogleMaps;
 using Tripilot.Shared.Settings;
 
 namespace Tripilot.Infrastructure;
@@ -61,6 +63,19 @@ public static class DependencyInjection
         // Add authentication services
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
+
+        // Configure Google Maps settings
+        services.Configure<GoogleMapsSettings>(
+            configuration.GetSection(GoogleMapsSettings.SectionName));
+
+        // Add Google Maps services
+        services.AddScoped<IGeocodingService, GeocodingService>();
+        services.AddScoped<IPlacesService, PlacesService>();
+        services.AddScoped<IDirectionsService, DirectionsService>();
+        services.AddScoped<IDistanceMatrixService, DistanceMatrixService>();
+
+        // Add HttpClient for Google Maps API calls
+        services.AddHttpClient();
 
         return services;
     }
