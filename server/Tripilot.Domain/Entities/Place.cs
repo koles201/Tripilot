@@ -93,6 +93,11 @@ public class Place : BaseEntity, IAuditableEntity
     /// </summary>
     public int ViewCount { get; set; }
 
+    /// <summary>
+    /// Reviews for this place
+    /// </summary>
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
     // IAuditableEntity implementation
     public DateTime CreatedAt { get; set; }
     public string? CreatedBy { get; set; }

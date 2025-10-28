@@ -38,7 +38,7 @@ public class Route : BaseEntity, IAuditableEntity
     
     // Relationships
     public ICollection<RoutePlace> RoutePlaces { get; set; } = new List<RoutePlace>();
-    // public ICollection<Review> Reviews { get; set; } = new List<Review>(); // Will be added when Review entity is created
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
     
     // Audit properties
     public DateTime CreatedAt { get; set; }
