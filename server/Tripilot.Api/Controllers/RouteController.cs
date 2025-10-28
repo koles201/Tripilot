@@ -61,6 +61,33 @@ public class RouteController : ControllerBase
     }
 
     /// <summary>
+    /// Get routes nearby a specific location
+    /// </summary>
+    [HttpGet("nearby")]
+    [ProducesResponseType(typeof(List<RouteListResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<RouteListResponse>>> GetRoutesNearby(
+        [FromQuery] double latitude,
+        [FromQuery] double longitude,
+        [FromQuery] double radiusKm = 10,
+        [FromQuery] string? difficulty = null,
+        [FromQuery] decimal? minRating = null,
+        [FromQuery] int maxResults = 50)
+    {
+        var query = new GetRoutesNearbyQuery
+        {
+            Latitude = latitude,
+            Longitude = longitude,
+            RadiusKm = radiusKm,
+            Difficulty = difficulty,
+            MinRating = minRating,
+            MaxResults = maxResults
+        };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Get a route by ID
     /// </summary>
     [HttpGet("{id}")]

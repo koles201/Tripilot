@@ -105,6 +105,33 @@ public class PlaceController : ControllerBase
     }
 
     /// <summary>
+    /// Get places nearby a specific location
+    /// </summary>
+    [HttpGet("nearby")]
+    [ProducesResponseType(typeof(List<PlaceListResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<PlaceListResponse>>> GetPlacesNearby(
+        [FromQuery] double latitude,
+        [FromQuery] double longitude,
+        [FromQuery] double radiusKm = 10,
+        [FromQuery] string? category = null,
+        [FromQuery] decimal? minRating = null,
+        [FromQuery] int maxResults = 50)
+    {
+        var query = new GetPlacesNearbyQuery
+        {
+            Latitude = latitude,
+            Longitude = longitude,
+            RadiusKm = radiusKm,
+            Category = category,
+            MinRating = minRating,
+            MaxResults = maxResults
+        };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Create a new place
     /// </summary>
     [HttpPost]
