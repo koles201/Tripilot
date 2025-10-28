@@ -4,6 +4,8 @@ import { useAppSelector } from './hooks/useRedux';
 import { lightTheme, darkTheme } from './styles/theme';
 import Header from './components/layout/Header';
 import HomePage from './pages/home/HomePage';
+import { LoginPage, RegisterPage, ForgotPasswordPage, ProfilePage } from './pages/auth';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
   const theme = useAppSelector((state) => state.ui.theme);
@@ -18,8 +20,14 @@ function App() {
           <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<div>Login Page (To be implemented)</div>} />
-              <Route path="/register" element={<div>Register Page (To be implemented)</div>} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/profile" element={<ProfilePage />} />
+              </Route>
             </Routes>
           </Box>
         </Box>
