@@ -16,6 +16,7 @@ public class GetPlacesListQuery : IRequest<PlacesListResult>
     public decimal? MinRating { get; set; }
     public int? PriceLevel { get; set; }
     public bool? IsVerified { get; set; }
+    public string? SortBy { get; set; }
 }
 
 /// <summary>

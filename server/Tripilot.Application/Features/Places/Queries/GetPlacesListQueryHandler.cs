@@ -65,10 +65,11 @@ public class GetPlacesListQueryHandler : IRequestHandler<GetPlacesListQuery, Pla
         // Get total count
         var totalCount = await query.CountAsync(cancellationToken);
 
+        // Apply sorting
+        query = ApplySorting(query, request.SortBy);
+
         // Apply pagination
         var places = await query
-            .OrderByDescending(p => p.AverageRating)
-            .ThenByDescending(p => p.ViewCount)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
@@ -81,6 +82,20 @@ public class GetPlacesListQueryHandler : IRequestHandler<GetPlacesListQuery, Pla
             TotalCount = totalCount,
             Page = request.Page,
             PageSize = request.PageSize
+        };
+    }
+
+    private IQueryable<Place> ApplySorting(IQueryable<Place> query, string? sortBy)
+    {
+        return sortBy?.ToLower() switch
+        {
+            "rating" => query.OrderByDescending(p => p.AverageRating)
+                            .ThenByDescending(p => p.ReviewCount),
+            "distance" => query.OrderBy(p => p.ViewCount), // Placeholder for distance
+            "name" => query.OrderBy(p => p.Name),
+            "newest" => query.OrderByDescending(p => p.CreatedAt),
+            _ => query.OrderByDescending(p => p.AverageRating)
+                      .ThenByDescending(p => p.ViewCount)
         };
     }
 }

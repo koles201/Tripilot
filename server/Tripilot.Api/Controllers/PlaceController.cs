@@ -38,7 +38,8 @@ public class PlaceController : ControllerBase
         [FromQuery] string? country = null,
         [FromQuery] decimal? minRating = null,
         [FromQuery] int? priceLevel = null,
-        [FromQuery] bool? isVerified = null)
+        [FromQuery] bool? isVerified = null,
+        [FromQuery] string? sortBy = null)
     {
         var query = new GetPlacesListQuery
         {
@@ -49,7 +50,8 @@ public class PlaceController : ControllerBase
             Country = country,
             MinRating = minRating,
             PriceLevel = priceLevel,
-            IsVerified = isVerified
+            IsVerified = isVerified,
+            SortBy = sortBy
         };
 
         var result = await _mediator.Send(query);
