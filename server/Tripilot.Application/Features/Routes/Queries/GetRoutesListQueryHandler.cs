@@ -2,12 +2,13 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tripilot.Application.Common.Interfaces;
+using Tripilot.Application.DTOs.Common;
 using Tripilot.Application.DTOs.Route;
 using Tripilot.Domain.Enums;
 
 namespace Tripilot.Application.Features.Routes.Queries;
 
-public class GetRoutesListQueryHandler : IRequestHandler<GetRoutesListQuery, List<RouteListResponse>>
+public class GetRoutesListQueryHandler : IRequestHandler<GetRoutesListQuery, PaginatedResult<RouteListResponse>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
@@ -18,7 +19,7 @@ public class GetRoutesListQueryHandler : IRequestHandler<GetRoutesListQuery, Lis
         _mapper = mapper;
     }
 
-    public async Task<List<RouteListResponse>> Handle(GetRoutesListQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResult<RouteListResponse>> Handle(GetRoutesListQuery request, CancellationToken cancellationToken)
     {
         var query = _unitOfWork.Repository<Domain.Entities.Route>()
             .GetQueryable()
@@ -78,13 +79,17 @@ public class GetRoutesListQueryHandler : IRequestHandler<GetRoutesListQuery, Lis
             _ => request.IsDescending ? query.OrderByDescending(r => r.CreatedAt) : query.OrderBy(r => r.CreatedAt)
         };
 
+        // Get total count before pagination
+        var totalCount = await query.CountAsync(cancellationToken);
+
         // Pagination
         var routes = await query
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        var response = _mapper.Map<List<RouteListResponse>>(routes);
-        return response;
+        var items = _mapper.Map<List<RouteListResponse>>(routes);
+        
+        return new PaginatedResult<RouteListResponse>(items, totalCount, request.PageNumber, request.PageSize);
     }
 }

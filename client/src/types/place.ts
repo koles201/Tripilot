@@ -59,12 +59,25 @@ export interface PlaceListItem {
   name: string;
   description: string;
   category: PlaceCategoryType;
+  
+  // Location
+  latitude?: number;
+  longitude?: number;
+  address?: string;
   city?: string;
   country?: string;
+  
+  // Ratings
   averageRating: number;
   reviewCount: number;
   priceLevel?: number;
+  
+  // Media
   imageUrl?: string;
+  photoUrl?: string;
+  coverImageUrl?: string;
+  
+  // Metadata
   isVerified: boolean;
   viewCount: number;
 }

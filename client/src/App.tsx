@@ -6,6 +6,7 @@ import Header from './components/layout/Header';
 import HomePage from './pages/home/HomePage';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ProfilePage } from './pages/auth';
 import { PlaceListPage, PlaceDetailPage } from './pages/places';
+import { RouteListPage, RouteDetailPage, RouteBuilderPage } from './pages/routes';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -32,6 +33,12 @@ function App() {
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />
+                
+                {/* Route Planning Routes */}
+                <Route path="/routes" element={<RouteListPage />} />
+                <Route path="/routes/new" element={<RouteBuilderPage />} />
+                <Route path="/routes/:id" element={<RouteDetailPage />} />
+                <Route path="/routes/:id/edit" element={<RouteBuilderPage />} />
               </Route>
             </Routes>
           </Box>

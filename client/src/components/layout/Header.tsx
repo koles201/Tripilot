@@ -1,5 +1,5 @@
 ﻿import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem } from '@mui/material';
-import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore } from '@mui/icons-material';
+import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore, Timeline } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
@@ -72,6 +72,16 @@ const Header = () => {
           >
             Discover
           </Button>
+          {isAuthenticated && (
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/routes"
+              startIcon={<Timeline />}
+            >
+              My Routes
+            </Button>
+          )}
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
