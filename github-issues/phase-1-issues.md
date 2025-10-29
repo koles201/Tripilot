@@ -412,3 +412,54 @@ Build user interface for browsing, searching, and viewing place details with fil
 - [ ] Place detail view shows complete information
 - [ ] Responsive design works on mobile devices
 - [ ] Sorting and pagination implemented
+
+---
+
+## Issue #11: Implement Route Planning UI
+
+**Labels:** `feature`, `phase-1`, `frontend`, `core`
+**Milestone:** Phase 1: MVP
+**Estimated Time:** 16-20 hours
+
+### Description
+Create comprehensive route planning interface allowing users to build custom routes by selecting places, visualizing them on a map, and managing route details with optimization suggestions.
+
+### Acceptance Criteria
+- [ ] Create route builder interface with place selection
+- [ ] Implement drag-and-drop for reordering places in route
+- [ ] Add map-based route visualization with Google Maps
+- [ ] Implement route saving and editing functionality
+- [ ] Create route list view for user's saved routes
+- [ ] Add route detail view with full information
+- [ ] Implement route sharing (public/private/unlisted)
+- [ ] Add route optimization suggestions
+- [ ] Create route difficulty selector
+- [ ] Implement distance and duration calculations
+
+### Technical Requirements
+- Google Maps JavaScript API for route visualization
+- React DnD or react-beautiful-dnd for drag-and-drop
+- Material-UI components for route builder interface
+- Redux state management for route builder state
+- Real-time distance and duration calculations
+- Route optimization algorithms
+- Responsive design for mobile devices
+
+### Value to Project
+- **Core Feature**: Route planning is the primary value proposition
+- **User Engagement**: Interactive route builder increases time on platform
+- **User Generated Content**: Routes create shareable content
+- **Social Features**: Route sharing drives viral growth
+- **Differentiation**: Comprehensive route planning sets app apart
+
+### Definition of Done
+- [ ] Route builder interface allows adding/removing places
+- [ ] Drag-and-drop reordering works smoothly
+- [ ] Map displays route with all places and connections
+- [ ] Routes save to backend successfully
+- [ ] Route list displays user's routes with filters
+- [ ] Route detail view shows complete information
+- [ ] Route sharing settings work (public/private)
+- [ ] Distance and duration calculate correctly
+- [ ] Optimization suggestions appear when applicable
+- [ ] Mobile responsive design functional

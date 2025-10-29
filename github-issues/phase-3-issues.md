@@ -4,7 +4,7 @@ This file contains formatted GitHub issues for Phase 3 development. Each issue i
 
 ---
 
-## Issue #21: Create audio guide data models and storage
+## Issue #22: Create audio guide data models and storage
 
 **Labels:** `epic`, `phase-3`, `backend`, `audio-guides`
 **Milestone:** Phase 3: Advanced Features
@@ -45,7 +45,7 @@ Implement comprehensive audio guide system with multi-language support, file sto
 
 ---
 
-## Issue #22: Build custom audio player component
+## Issue #23: Build custom audio player component
 
 **Labels:** `feature`, `phase-3`, `frontend`, `audio-guides`
 **Milestone:** Phase 3: Advanced Features
@@ -86,11 +86,11 @@ Create custom audio player with advanced playback controls, seeking, background 
 
 ---
 
-## Issue #23: Implement offline audio support
+## Issue #24: Implement offline audio support
 
 **Labels:** `feature`, `phase-3`, `frontend`, `audio-guides`
 **Milestone:** Phase 3: Advanced Features
-**Estimated Time:** 14-18 hours
+**Estimated Time:** 10-14 hours
 
 ### Description
 Add offline audio functionality allowing users to download audio guides for offline listening during tours.
@@ -127,11 +127,11 @@ Add offline audio functionality allowing users to download audio guides for offl
 
 ---
 
-## Issue #24: Create premium subscription system
+## Issue #25: Create premium subscription system
 
-**Labels:** `epic`, `phase-3`, `backend`, `business`
+**Labels:** `epic`, `phase-3`, `backend`, `monetization`
 **Milestone:** Phase 3: Advanced Features
-**Estimated Time:** 20-24 hours
+**Estimated Time:** 18-24 hours
 
 ### Description
 Implement comprehensive subscription management system with payment processing, tiered plans, and premium feature access control.
@@ -168,11 +168,11 @@ Implement comprehensive subscription management system with payment processing, 
 
 ---
 
-## Issue #25: Add premium business features
+## Issue #26: Add premium business features
 
-**Labels:** `feature`, `phase-3`, `backend`, `business`
+**Labels:** `feature`, `phase-3`, `backend`, `monetization`
 **Milestone:** Phase 3: Advanced Features
-**Estimated Time:** 16-20 hours
+**Estimated Time:** 14-18 hours
 
 ### Description
 Implement premium business features including featured listings, advanced analytics, and custom marketing campaign tools.
@@ -209,9 +209,9 @@ Implement premium business features including featured listings, advanced analyt
 
 ---
 
-## Issue #26: Implement user behavior tracking
+## Issue #27: Implement user behavior tracking
 
-**Labels:** `feature`, `phase-3`, `backend`, `ai-recommendations`
+**Labels:** `feature`, `phase-3`, `backend`, `analytics`
 **Milestone:** Phase 3: Advanced Features
 **Estimated Time:** 12-16 hours
 
@@ -250,11 +250,11 @@ Create comprehensive user behavior tracking system to power AI-driven recommenda
 
 ---
 
-## Issue #27: Create personalized recommendation engine
+## Issue #28: Create personalized recommendation engine
 
-**Labels:** `feature`, `phase-3`, `backend`, `ai-recommendations`
+**Labels:** `feature`, `phase-3`, `backend`, `analytics`
 **Milestone:** Phase 3: Advanced Features
-**Estimated Time:** 18-22 hours
+**Estimated Time:** 16-20 hours
 
 ### Description
 Build AI-powered recommendation engine using collaborative filtering, content-based filtering, and hybrid approaches for personalized suggestions.
@@ -291,11 +291,11 @@ Build AI-powered recommendation engine using collaborative filtering, content-ba
 
 ---
 
-## Issue #28: Add smart route optimization
+## Issue #29: Add smart route optimization
 
-**Labels:** `feature`, `phase-3`, `backend`, `ai-recommendations`
+**Labels:** `feature`, `phase-3`, `backend`, `analytics`
 **Milestone:** Phase 3: Advanced Features
-**Estimated Time:** 16-20 hours
+**Estimated Time:** 14-18 hours
 
 ### Description
 Implement intelligent route optimization considering time constraints, user preferences, weather conditions, and real-time factors.

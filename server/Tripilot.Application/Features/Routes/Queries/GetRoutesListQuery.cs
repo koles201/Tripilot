@@ -1,9 +1,13 @@
 ﻿using MediatR;
+using Tripilot.Application.DTOs.Common;
 using Tripilot.Application.DTOs.Route;
 
 namespace Tripilot.Application.Features.Routes.Queries;
 
-public class GetRoutesListQuery : IRequest<List<RouteListResponse>>
+/// <summary>
+/// Query to get a list of routes
+/// </summary>
+public class GetRoutesListQuery : IRequest<PaginatedResult<RouteListResponse>>
 {
     public string? Difficulty { get; set; }
     public string? Privacy { get; set; }
