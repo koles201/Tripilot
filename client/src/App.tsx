@@ -5,6 +5,7 @@ import { lightTheme, darkTheme } from './styles/theme';
 import Header from './components/layout/Header';
 import HomePage from './pages/home/HomePage';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ProfilePage } from './pages/auth';
+import { PlaceListPage, PlaceDetailPage } from './pages/places';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -24,6 +25,10 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               
+              {/* Place Routes */}
+              <Route path="/places" element={<PlaceListPage />} />
+              <Route path="/places/:id" element={<PlaceDetailPage />} />
+              
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />
@@ -37,3 +42,4 @@ function App() {
 }
 
 export default App;
+

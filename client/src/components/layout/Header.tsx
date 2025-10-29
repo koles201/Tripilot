@@ -1,5 +1,5 @@
 ﻿import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem } from '@mui/material';
-import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle } from '@mui/icons-material';
+import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
@@ -53,14 +53,26 @@ const Header = () => {
           component={RouterLink}
           to="/"
           sx={{
-            flexGrow: 1,
             textDecoration: 'none',
             color: 'inherit',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            mr: 4
           }}
         >
           Tripilot
         </Typography>
+
+        {/* Navigation Links */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+          <Button
+            color="inherit"
+            component={RouterLink}
+            to="/places"
+            startIcon={<Explore />}
+          >
+            Discover
+          </Button>
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <IconButton color="inherit" onClick={handleThemeToggle}>
