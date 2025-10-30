@@ -64,6 +64,10 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
 
+    // Development stub services (replace with cloud providers later)
+    services.AddSingleton<IFileStorageService, InMemoryFileStorageService>();
+    services.AddScoped<IEmailService, ConsoleEmailService>();
+
         // Configure Google Maps settings
         services.Configure<GoogleMapsSettings>(
             configuration.GetSection(GoogleMapsSettings.SectionName));

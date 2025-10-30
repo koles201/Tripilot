@@ -23,7 +23,7 @@ public abstract class BaseEntity
     /// Adds a domain event to be raised
     /// </summary>
     /// <param name="domainEvent">The domain event to add</param>
-    protected void AddDomainEvent(INotification domainEvent)
+    protected void AddDomainEventInternal(INotification domainEvent)
     {
         _domainEvents.Add(domainEvent);
     }
@@ -35,6 +35,12 @@ public abstract class BaseEntity
     {
         _domainEvents.Clear();
     }
+
+    /// <summary>
+    /// Adds a domain event (exposed for application layer when direct entity modification occurs outside aggregate methods).
+    /// Prefer keeping entities encapsulated; this is a pragmatic choice until richer aggregates are introduced.
+    /// </summary>
+    public void RaiseDomainEvent(INotification domainEvent) => AddDomainEventInternal(domainEvent);
 
     /// <summary>
     /// Equality comparison based on Id

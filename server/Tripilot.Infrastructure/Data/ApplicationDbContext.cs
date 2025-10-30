@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MediatR;
 using Tripilot.Domain.Entities;
 
 namespace Tripilot.Infrastructure.Data;
@@ -8,9 +9,11 @@ namespace Tripilot.Infrastructure.Data;
 /// </summary>
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    private readonly IServiceProvider? _serviceProvider;
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IServiceProvider? serviceProvider = null)
         : base(options)
     {
+        _serviceProvider = serviceProvider; // optional; mediator resolved lazily
     }
 
     // DbSets
@@ -19,6 +22,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Route> Routes { get; set; } = null!;
     public DbSet<RoutePlace> RoutePlaces { get; set; } = null!;
     public DbSet<Review> Reviews { get; set; } = null!;
+    public DbSet<BusinessProfile> BusinessProfiles { get; set; } = null!;
+    public DbSet<BusinessVerificationDocument> BusinessVerificationDocuments { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,8 +72,18 @@ public class ApplicationDbContext : DbContext
 
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        // TODO: Publish domain events via MediatR after successful save
-        // This will be implemented when we add MediatR publisher
+        // Publish domain events via MediatR after successful save
+        if (domainEvents.Count > 0 && _serviceProvider != null)
+        {
+            var mediator = _serviceProvider.GetService(typeof(IMediator)) as IMediator;
+            if (mediator != null)
+            {
+                foreach (var domainEvent in domainEvents)
+                {
+                    await mediator.Publish(domainEvent, cancellationToken);
+                }
+            }
+        }
 
         return result;
     }
