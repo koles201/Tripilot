@@ -107,6 +107,78 @@ public class PlaceController : ControllerBase
     }
 
     /// <summary>
+    /// Advanced search with comprehensive filtering and ranking
+    /// </summary>
+    [HttpGet("advanced-search")]
+    [ProducesResponseType(typeof(AdvancedSearchResult), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdvancedSearchResult>> AdvancedSearch(
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] string? category = null,
+        [FromQuery] string? city = null,
+        [FromQuery] string? country = null,
+        [FromQuery] decimal? minRating = null,
+        [FromQuery] decimal? maxRating = null,
+        [FromQuery] int? minPriceLevel = null,
+        [FromQuery] int? maxPriceLevel = null,
+        [FromQuery] bool? isVerified = null,
+        [FromQuery] string? amenities = null,
+        [FromQuery] bool? isOpenNow = null,
+        [FromQuery] bool? is24Hours = null,
+        [FromQuery] double? latitude = null,
+        [FromQuery] double? longitude = null,
+        [FromQuery] double? radiusKm = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDirection = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new AdvancedSearchQuery
+        {
+            SearchTerm = searchTerm,
+            Category = category,
+            City = city,
+            Country = country,
+            MinRating = minRating,
+            MaxRating = maxRating,
+            MinPriceLevel = minPriceLevel,
+            MaxPriceLevel = maxPriceLevel,
+            IsVerified = isVerified,
+            Amenities = amenities,
+            IsOpenNow = isOpenNow,
+            Is24Hours = is24Hours,
+            Latitude = latitude,
+            Longitude = longitude,
+            RadiusKm = radiusKm,
+            SortBy = sortBy,
+            SortDirection = sortDirection,
+            Page = page,
+            PageSize = pageSize
+        };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get autocomplete suggestions for search
+    /// </summary>
+    [HttpGet("suggestions")]
+    [ProducesResponseType(typeof(AutocompleteResult), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AutocompleteResult>> GetSuggestions(
+        [FromQuery] string searchTerm = "",
+        [FromQuery] int maxSuggestions = 10)
+    {
+        var query = new GetSearchSuggestionsQuery
+        {
+            SearchTerm = searchTerm,
+            MaxSuggestions = maxSuggestions
+        };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Get places nearby a specific location
     /// </summary>
     [HttpGet("nearby")]

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Container,
   Box,
@@ -10,208 +10,505 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Drawer,
-  IconButton,
-  useMediaQuery,
-  useTheme,
+  Button,
+  Chip,
 } from '@mui/material';
-import { FilterList } from '@mui/icons-material';
+import { FilterList, Close } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchPlaces,
-  searchPlaces,
   selectPlaces,
   selectPlaceLoading,
   selectPlaceError,
   selectPagination,
-  selectPlaceFilters,
-  setFilters,
-  setPage,
 } from '../../store/slices/placeSlice';
 import PlaceCard from '../../components/places/PlaceCard';
-import PlaceSearch from '../../components/places/PlaceSearch';
-import PlaceFilters from '../../components/places/PlaceFilters';
-import type { PlaceQueryParams } from '../../types/place';
+import SearchBar from '../../components/search/SearchBar';
+import AdvancedFilters from '../../components/search/AdvancedFilters';
+import searchService from '../../services/api/searchService';
+import type { SearchFilters, AdvancedSearchResult } from '../../types/search';
 
+// Sort options for places
+const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'rating', label: 'Rating' },
+  { value: 'distance', label: 'Distance' },
+  { value: 'popularity', label: 'Popularity' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'name', label: 'Name' },
+] as const;
+
+/**
+ * PlaceListPage Component
+ * 
+ * Main page for browsing and searching places with advanced filtering.
+ * Supports both basic place listing (via Redux) and advanced search (via API).
+ * 
+ * @component
+ */
 const PlaceListPage = () => {
+  // Redux state
   const dispatch = useAppDispatch();
   const places = useAppSelector(selectPlaces);
   const loading = useAppSelector(selectPlaceLoading);
   const error = useAppSelector(selectPlaceError);
   const pagination = useAppSelector(selectPagination);
-  const filters = useAppSelector(selectPlaceFilters);
 
-  const [searchTerm, setSearchTerm] = useState(filters.searchTerm || '');
-  const [sortBy, setSortBy] = useState<'rating' | 'distance' | 'name' | 'newest'>('rating');
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  // Local state for advanced search
+  const [searchResults, setSearchResults] = useState<AdvancedSearchResult[] | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // Filter state
+  const [filters, setFilters] = useState<SearchFilters>({
+    page: 1,
+    pageSize: 20,
+    sortBy: 'relevance',
+    sortDirection: 'desc',
+  });
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  useEffect(() => {
-    const params: PlaceQueryParams = {
-      ...filters,
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      sortBy,
-    };
+  /**
+   * Check if any advanced filters are active
+   */
+  const hasActiveFilters = useCallback((): boolean => {
+    return !!(
+      filters.category ||
+      filters.city ||
+      filters.country ||
+      filters.minRating ||
+      filters.maxRating ||
+      filters.minPriceLevel ||
+      filters.maxPriceLevel ||
+      filters.isVerified ||
+      filters.amenities?.length ||
+      filters.isOpenNow ||
+      filters.is24Hours ||
+      filters.location
+    );
+  }, [filters]);
 
-    if (searchTerm) {
-      dispatch(searchPlaces({ ...params, searchTerm }));
-    } else {
-      dispatch(fetchPlaces(params));
+  /**
+   * Load places from Redux store (basic listing)
+   */
+  const loadPlacesFromStore = useCallback(() => {
+    dispatch(
+      fetchPlaces({
+        page: filters.page || 1,
+        pageSize: filters.pageSize || 20,
+      })
+    );
+    setSearchResults(null);
+  }, [dispatch, filters.page, filters.pageSize]);
+
+  /**
+   * Perform advanced search with current filters
+   */
+  const performAdvancedSearch = useCallback(async () => {
+    try {
+      setSearchLoading(true);
+      setSearchError(null);
+      const result = await searchService.advancedSearch(filters);
+      setSearchResults(result.items);
+      setTotalResults(result.totalCount);
+      setTotalPages(result.totalPages);
+    } catch (err: any) {
+      console.error('Advanced search error:', err);
+      setSearchError(err.response?.data?.message || 'Search failed. Please try again.');
+    } finally {
+      setSearchLoading(false);
     }
-  }, [dispatch, filters, pagination.page, pagination.pageSize, sortBy, searchTerm]);
+  }, [filters]);
 
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    dispatch(setPage(1));
+  /**
+   * Load data when filters change
+   * Use advanced search if search term or filters active, otherwise basic listing
+   */
+  useEffect(() => {
+    if (filters.searchTerm || hasActiveFilters()) {
+      performAdvancedSearch();
+    } else {
+      loadPlacesFromStore();
+    }
+  }, [filters, hasActiveFilters, performAdvancedSearch, loadPlacesFromStore]);
+
+  // ==================== Event Handlers ====================
+
+  /**
+   * Handle search term changes from SearchBar
+   */
+  const handleSearch = (searchTerm: string) => {
+    setFilters({
+      ...filters,
+      searchTerm: searchTerm || undefined,
+      page: 1,
+    });
   };
 
-  const handleFiltersChange = (newFilters: PlaceQueryParams) => {
-    dispatch(setFilters(newFilters));
-    dispatch(setPage(1));
+  /**
+   * Handle filter application from AdvancedFilters drawer
+   */
+  const handleFiltersApply = (newFilters: SearchFilters) => {
+    setFilters({
+      ...newFilters,
+      page: 1,
+    });
   };
 
+  /**
+   * Handle pagination page change
+   */
   const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-    dispatch(setPage(value));
+    setFilters({
+      ...filters,
+      page: value,
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  /**
+   * Handle sort option change
+   */
   const handleSortChange = (event: any) => {
-    setSortBy(event.target.value);
-    dispatch(setPage(1));
+    setFilters({
+      ...filters,
+      sortBy: event.target.value,
+      page: 1,
+    });
   };
+
+  /**
+   * Clear all filters and reset to defaults
+   */
+  const handleClearFilters = () => {
+    setFilters({
+      page: 1,
+      pageSize: 20,
+      sortBy: 'relevance',
+      sortDirection: 'desc',
+    });
+  };
+
+  /**
+   * Remove a specific filter
+   */
+  const removeFilter = (filterKey: keyof SearchFilters) => {
+    setFilters({
+      ...filters,
+      [filterKey]: undefined,
+      page: 1,
+    });
+  };
+
+  // ==================== Computed Values ====================
+
+  // Determine which data source to use
+  const displayPlaces = searchResults || places;
+  const displayLoading = searchLoading || loading;
+  const displayError = searchError || error;
+  const displayPagination = searchResults
+    ? { page: filters.page || 1, totalPages, totalCount: totalResults }
+    : pagination;
+
+  // Calculate active filter count
+  const activeFilterCount = [
+    filters.category,
+    filters.city,
+    filters.country,
+    filters.minRating && filters.minRating > 0,
+    filters.maxRating && filters.maxRating < 5,
+    filters.minPriceLevel && filters.minPriceLevel > 1,
+    filters.maxPriceLevel && filters.maxPriceLevel < 4,
+    filters.isVerified,
+    filters.amenities?.length,
+    filters.isOpenNow,
+    filters.is24Hours,
+  ].filter(Boolean).length;
+
+  const isUsingAdvancedSearch = !!(filters.searchTerm || hasActiveFilters());
+
+  // ==================== Render ====================
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
           Discover Places
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Explore amazing destinations and experiences
+          Explore amazing destinations and experiences around the world
         </Typography>
       </Box>
 
-      {/* Search and Sort Bar */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
-        <Box sx={{ flexGrow: 1 }}>
-          <PlaceSearch value={searchTerm} onChange={handleSearchChange} />
+      {/* Search and Filters Toolbar */}
+      <Box
+        sx={{
+          mb: 3,
+          display: 'flex',
+          gap: 2,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        {/* Search Bar */}
+        <Box sx={{ flexGrow: 1, minWidth: { xs: '100%', sm: 300 } }}>
+          <SearchBar onSearch={handleSearch} autoFocus={false} />
         </Box>
 
-        {isMobile && (
-          <IconButton
-            onClick={() => setMobileFiltersOpen(true)}
-            sx={{ bgcolor: 'background.paper' }}
-          >
-            <FilterList />
-          </IconButton>
-        )}
+        {/* Filters Button */}
+        <Button
+          variant="outlined"
+          startIcon={<FilterList />}
+          onClick={() => setFiltersOpen(true)}
+          sx={{ minWidth: 120 }}
+        >
+          Filters
+          {activeFilterCount > 0 && (
+            <Chip
+              label={activeFilterCount}
+              size="small"
+              color="primary"
+              sx={{ ml: 1, height: 20 }}
+            />
+          )}
+        </Button>
 
+        {/* Sort Dropdown */}
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} onChange={handleSortChange} label="Sort By" size="medium">
-            <MenuItem value="rating">Rating</MenuItem>
-            <MenuItem value="distance">Distance</MenuItem>
-            <MenuItem value="name">Name</MenuItem>
-            <MenuItem value="newest">Newest</MenuItem>
+          <InputLabel id="sort-select-label">Sort By</InputLabel>
+          <Select
+            labelId="sort-select-label"
+            value={filters.sortBy || 'relevance'}
+            onChange={handleSortChange}
+            label="Sort By"
+            size="medium"
+          >
+            {SORT_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
+
+        {/* Clear All Filters */}
+        {activeFilterCount > 0 && (
+          <Button
+            variant="text"
+            startIcon={<Close />}
+            onClick={handleClearFilters}
+            color="error"
+          >
+            Clear All
+          </Button>
+        )}
       </Box>
 
-      {/* Main Content */}
-      <Box sx={{ display: 'flex', gap: 3 }}>
-        {/* Filters Sidebar - Desktop */}
-        {!isMobile && (
-          <Box sx={{ width: 280, flexShrink: 0 }}>
-            <PlaceFilters filters={filters} onChange={handleFiltersChange} />
+      {/* Active Filters Display */}
+      {isUsingAdvancedSearch && (
+        <Box
+          sx={{
+            mb: 2,
+            display: 'flex',
+            gap: 1,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="body2" color="text.secondary" fontWeight="medium">
+            Active filters:
+          </Typography>
+          {filters.searchTerm && (
+            <Chip
+              label={`Search: "${filters.searchTerm}"`}
+              onDelete={() => handleSearch('')}
+              size="small"
+              color="primary"
+            />
+          )}
+          {filters.category && (
+            <Chip
+              label={`Category: ${filters.category}`}
+              onDelete={() => removeFilter('category')}
+              size="small"
+            />
+          )}
+          {filters.city && (
+            <Chip
+              label={`City: ${filters.city}`}
+              onDelete={() => removeFilter('city')}
+              size="small"
+            />
+          )}
+          {filters.country && (
+            <Chip
+              label={`Country: ${filters.country}`}
+              onDelete={() => removeFilter('country')}
+              size="small"
+            />
+          )}
+          {filters.isVerified && (
+            <Chip
+              label="Verified Only"
+              onDelete={() => removeFilter('isVerified')}
+              size="small"
+            />
+          )}
+          {filters.isOpenNow && (
+            <Chip
+              label="Open Now"
+              onDelete={() => removeFilter('isOpenNow')}
+              size="small"
+            />
+          )}
+          {filters.is24Hours && (
+            <Chip
+              label="24 Hours"
+              onDelete={() => removeFilter('is24Hours')}
+              size="small"
+            />
+          )}
+          {filters.amenities && filters.amenities.length > 0 && (
+            <Chip
+              label={`${filters.amenities.length} Amenities`}
+              onDelete={() => removeFilter('amenities')}
+              size="small"
+            />
+          )}
+        </Box>
+      )}
+
+      {/* Advanced Filters Drawer */}
+      <AdvancedFilters
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filters={filters}
+        onApply={handleFiltersApply}
+      />
+
+      {/* Main Content Area */}
+      <Box>
+        {/* Loading State */}
+        {displayLoading && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              py: 8,
+              gap: 2,
+            }}
+          >
+            <CircularProgress size={48} />
+            <Typography variant="body2" color="text.secondary">
+              {isUsingAdvancedSearch ? 'Searching places...' : 'Loading places...'}
+            </Typography>
           </Box>
         )}
 
-        {/* Filters Drawer - Mobile */}
-        {isMobile && (
-          <Drawer
-            anchor="right"
-            open={mobileFiltersOpen}
-            onClose={() => setMobileFiltersOpen(false)}
+        {/* Error State */}
+        {displayError && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {displayError}
+          </Alert>
+        )}
+
+        {/* Empty State */}
+        {!displayLoading && !displayError && displayPlaces.length === 0 && (
+          <Box
+            sx={{
+              textAlign: 'center',
+              py: 8,
+              px: 2,
+            }}
           >
-            <Box sx={{ width: 300, p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Filters
-              </Typography>
-              <PlaceFilters filters={filters} onChange={handleFiltersChange} />
-            </Box>
-          </Drawer>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              No places found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {isUsingAdvancedSearch
+                ? 'Try adjusting your search terms or filters to see more results.'
+                : 'No places available at the moment. Please check back later.'}
+            </Typography>
+            {isUsingAdvancedSearch && (
+              <Button variant="outlined" onClick={handleClearFilters} sx={{ mt: 2 }}>
+                Clear All Filters
+              </Button>
+            )}
+          </Box>
         )}
 
         {/* Places Grid */}
-        <Box sx={{ flexGrow: 1 }}>
-          {loading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
-          )}
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
-
-          {!loading && !error && places.length === 0 && (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
-              <Typography variant="h6" color="text.secondary">
-                No places found
-              </Typography>
+        {!displayLoading && !displayError && displayPlaces.length > 0 && (
+          <>
+            {/* Results Summary */}
+            <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography variant="body2" color="text.secondary">
-                Try adjusting your search or filters
+                Showing {displayPlaces.length} of {displayPagination.totalCount.toLocaleString()} places
               </Typography>
+              {isUsingAdvancedSearch && (
+                <Chip
+                  label="Advanced Search"
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                />
+              )}
             </Box>
-          )}
 
-          {!loading && !error && places.length > 0 && (
-            <>
+            {/* Places Grid */}
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                  xl: 'repeat(4, 1fr)',
+                },
+                gap: 3,
+                mb: 4,
+              }}
+            >
+              {displayPlaces.map((place: any) => (
+                <PlaceCard key={place.id} place={place} />
+              ))}
+            </Box>
+
+            {/* Pagination */}
+            {displayPagination.totalPages > 1 && (
               <Box
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: '1fr',
-                    sm: 'repeat(2, 1fr)',
-                    lg: 'repeat(3, 1fr)',
-                  },
-                  gap: 3,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  mt: 4,
+                  gap: 2,
+                  flexDirection: { xs: 'column', sm: 'row' },
                 }}
               >
-                {places.map((place) => (
-                  <PlaceCard key={place.id} place={place} />
-                ))}
-              </Box>
-
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                  <Pagination
-                    count={pagination.totalPages}
-                    page={pagination.page}
-                    onChange={handlePageChange}
-                    color="primary"
-                    size="large"
-                    showFirstButton
-                    showLastButton
-                  />
-                </Box>
-              )}
-
-              {/* Results Info */}
-              <Box sx={{ mt: 2, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  Showing {places.length} of {pagination.totalCount} places
+                <Pagination
+                  count={displayPagination.totalPages}
+                  page={displayPagination.page}
+                  onChange={handlePageChange}
+                  color="primary"
+                  size="large"
+                  showFirstButton
+                  showLastButton
+                  siblingCount={1}
+                  boundaryCount={1}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  Page {displayPagination.page} of {displayPagination.totalPages}
                 </Typography>
               </Box>
-            </>
-          )}
-        </Box>
+            )}
+          </>
+        )}
       </Box>
     </Container>
   );
