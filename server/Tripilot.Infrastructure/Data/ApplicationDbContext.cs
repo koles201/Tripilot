@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<RoutePlace> RoutePlaces { get; set; } = null!;
     public DbSet<Review> Reviews { get; set; } = null!;
     public DbSet<PlaceClaim> PlaceClaims { get; set; } = null!;
+    public DbSet<Favorite> Favorites { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import uiReducer from './slices/uiSlice';
 import placeReducer from './slices/placeSlice';
 import routeReducer from './slices/routeSlice';
+import favoriteReducer from './slices/favoriteSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     ui: uiReducer,
     place: placeReducer,
     routes: routeReducer,
+    favorite: favoriteReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

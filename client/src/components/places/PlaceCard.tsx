@@ -14,6 +14,7 @@ import {
 import { Verified, LocationOn } from '@mui/icons-material';
 import type { PlaceListItem } from '../../types/place';
 import { PlaceCategory, PlaceCategoryNames } from '../../types/enums';
+import FavoriteButton from '../favorites/FavoriteButton';
 
 interface PlaceCardProps {
   place: PlaceListItem;
@@ -56,6 +57,7 @@ const PlaceCard: FC<PlaceCardProps> = ({ place }) => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
+        position: 'relative',
         transition: 'transform 0.2s, box-shadow 0.2s',
         '&:hover': {
           transform: 'translateY(-4px)',
@@ -63,6 +65,20 @@ const PlaceCard: FC<PlaceCardProps> = ({ place }) => {
         },
       }}
     >
+      {/* Favorite Button */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          zIndex: 1,
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
+          borderRadius: '50%',
+        }}
+      >
+        <FavoriteButton placeId={place.id} size="small" showTooltip={false} />
+      </Box>
+
       <CardMedia
         component="img"
         height="200"

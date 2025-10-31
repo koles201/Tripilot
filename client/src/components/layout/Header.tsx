@@ -1,5 +1,5 @@
 ﻿import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem } from '@mui/material';
-import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore, Timeline, BusinessCenter } from '@mui/icons-material';
+import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore, Timeline, BusinessCenter, Favorite } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
@@ -105,6 +105,14 @@ const Header = () => {
               <Button
                 color="inherit"
                 component={RouterLink}
+                to="/favorites"
+                startIcon={<Favorite />}
+              >
+                Favorites
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
                 to="/routes"
                 startIcon={<Timeline />}
               >
@@ -144,6 +152,10 @@ const Header = () => {
           </MenuItem>
           {isAuthenticated && (
             <>
+              <MenuItem onClick={() => handleMobileNavigation('/favorites')}>
+                <Favorite sx={{ mr: 2 }} />
+                Favorites
+              </MenuItem>
               <MenuItem onClick={() => handleMobileNavigation('/routes')}>
                 <Timeline sx={{ mr: 2 }} />
                 My Routes
