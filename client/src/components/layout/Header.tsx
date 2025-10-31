@@ -1,5 +1,5 @@
 ﻿import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem } from '@mui/material';
-import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore, Timeline } from '@mui/icons-material';
+import { Brightness4, Brightness7, Menu as MenuIcon, AccountCircle, Explore, Timeline, BusinessCenter } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
@@ -12,6 +12,7 @@ const Header = () => {
   const { theme } = useAppSelector((state) => state.ui);
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
 
   const handleThemeToggle = () => {
     dispatch(setTheme(theme === 'light' ? 'dark' : 'light'));
@@ -30,20 +31,47 @@ const Header = () => {
     setAnchorEl(null);
   };
 
+  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMobileMenuAnchor(event.currentTarget);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuAnchor(null);
+  };
+
   const handleProfileClick = () => {
     navigate('/profile');
     handleMenuClose();
   };
 
+  const handleMobileNavigation = (path: string) => {
+    navigate(path);
+    handleMobileMenuClose();
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
+        {/* Mobile menu toggle - only show on mobile when authenticated */}
+        {isAuthenticated && (
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="navigation menu"
+            onClick={handleMobileMenuOpen}
+            sx={{ mr: 2, display: { xs: 'flex', md: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+        
+        {/* Sidebar toggle - only show on desktop */}
         <IconButton
           edge="start"
           color="inherit"
-          aria-label="menu"
+          aria-label="toggle sidebar"
           onClick={() => dispatch(toggleSidebar())}
-          sx={{ mr: 2 }}
+          sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
         >
           <MenuIcon />
         </IconButton>
@@ -62,7 +90,7 @@ const Header = () => {
           Tripilot
         </Typography>
 
-        {/* Navigation Links */}
+        {/* Desktop Navigation Links */}
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, gap: 2 }}>
           <Button
             color="inherit"
@@ -73,16 +101,63 @@ const Header = () => {
             Discover
           </Button>
           {isAuthenticated && (
-            <Button
-              color="inherit"
-              component={RouterLink}
-              to="/routes"
-              startIcon={<Timeline />}
-            >
-              My Routes
-            </Button>
+            <>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/routes"
+                startIcon={<Timeline />}
+              >
+                My Routes
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/business-dashboard"
+                startIcon={<BusinessCenter />}
+              >
+                Business
+              </Button>
+            </>
           )}
         </Box>
+
+        {/* Mobile Navigation Menu */}
+        <Menu
+          id="mobile-menu"
+          anchorEl={mobileMenuAnchor}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          open={Boolean(mobileMenuAnchor)}
+          onClose={handleMobileMenuClose}
+        >
+          <MenuItem onClick={() => handleMobileNavigation('/places')}>
+            <Explore sx={{ mr: 2 }} />
+            Discover
+          </MenuItem>
+          {isAuthenticated && (
+            <>
+              <MenuItem onClick={() => handleMobileNavigation('/routes')}>
+                <Timeline sx={{ mr: 2 }} />
+                My Routes
+              </MenuItem>
+              <MenuItem onClick={() => handleMobileNavigation('/business-dashboard')}>
+                <BusinessCenter sx={{ mr: 2 }} />
+                Business Dashboard
+              </MenuItem>
+            </>
+          )}
+        </Menu>
+
+        {/* Spacer for mobile */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <IconButton color="inherit" onClick={handleThemeToggle}>
@@ -119,6 +194,9 @@ const Header = () => {
                   <Typography variant="body2">{user?.email}</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+                <MenuItem onClick={() => { navigate('/business-dashboard'); handleMenuClose(); }}>
+                  Business Dashboard
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>

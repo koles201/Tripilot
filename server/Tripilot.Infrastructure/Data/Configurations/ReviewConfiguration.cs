@@ -66,10 +66,10 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
             .IsRequired(false);
 
         // Constraints - must have either PlaceId or RouteId, but not both
-        builder.ToTable(t => t.HasCheckConstraint(
+        builder.HasCheckConstraint(
             "CK_Review_PlaceOrRoute",
             "(\"PlaceId\" IS NOT NULL AND \"RouteId\" IS NULL) OR (\"PlaceId\" IS NULL AND \"RouteId\" IS NOT NULL)"
-        ));
+        );
 
         // Indexes
         builder.HasIndex(r => r.PlaceId)
