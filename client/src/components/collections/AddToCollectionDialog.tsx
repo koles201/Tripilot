@@ -50,10 +50,13 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
     setLoading(true);
     setError(null);
     try {
-      // This would need to be adjusted to get current user's collections
-      // For now, we'll use a placeholder
-      const data = await collectionService.getMyCollections();
-      setCollections(data.items);
+      // TODO: Get current user ID from auth context/store
+      // For now, this will need to be passed as a prop or retrieved from auth
+      // const data = await collectionService.getUserCollections(currentUserId);
+      // setCollections(data.items);
+      
+      // Placeholder - will need proper implementation with user ID
+      setCollections([]);
     } catch (err) {
       console.error('Failed to load collections:', err);
       setError('Failed to load collections');

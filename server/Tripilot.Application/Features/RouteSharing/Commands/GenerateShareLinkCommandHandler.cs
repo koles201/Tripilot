@@ -47,9 +47,10 @@ public class GenerateShareLinkCommandHandler : IRequestHandler<GenerateShareLink
         route.ShareCount++;
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var baseUrl = "https://tripilot.com"; // TODO: Get from configuration
+        // TODO: Get base URL from configuration (IConfiguration or appsettings.json)
+        var baseUrl = "https://tripilot.com";
         var shareUrl = $"{baseUrl}/routes/shared/{route.ShareToken}";
-        var embedCode = GenerateEmbedCode(route.ShareToken, 600, 400);
+        var embedCode = GenerateEmbedCode(route.ShareToken, 600, 400, baseUrl);
 
         return new ShareLinkResponse
         {
@@ -61,12 +62,21 @@ public class GenerateShareLinkCommandHandler : IRequestHandler<GenerateShareLink
 
     private string GenerateShareToken()
     {
-        return Guid.NewGuid().ToString("N").Substring(0, 12);
+        // Generate a cryptographically secure random token
+        var randomBytes = new byte[9]; // 9 bytes = 12 base64 characters
+        using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomBytes);
+        }
+        return Convert.ToBase64String(randomBytes)
+            .Replace("+", "")
+            .Replace("/", "")
+            .Replace("=", "")
+            .Substring(0, 12);
     }
 
-    private string GenerateEmbedCode(string shareToken, int width, int height)
+    private string GenerateEmbedCode(string shareToken, int width, int height, string baseUrl)
     {
-        var baseUrl = "https://tripilot.com"; // TODO: Get from configuration
         return $"<iframe src=\"{baseUrl}/embed/route/{shareToken}\" width=\"{width}\" height=\"{height}\" frameborder=\"0\" allowfullscreen></iframe>";
     }
 }
