@@ -41,6 +41,13 @@ public class RouteConfiguration : IEntityTypeConfiguration<Route>
 
         builder.Property(r => r.ImageUrl)
             .HasMaxLength(1000);
+        
+        builder.Property(r => r.ShareToken)
+            .HasMaxLength(50);
+        
+        builder.Property(r => r.IsEmbeddable)
+            .IsRequired()
+            .HasDefaultValue(true);
 
         builder.Property(r => r.AverageRating)
             .HasPrecision(3, 2)
@@ -53,6 +60,9 @@ public class RouteConfiguration : IEntityTypeConfiguration<Route>
             .HasDefaultValue(0);
 
         builder.Property(r => r.FavoriteCount)
+            .HasDefaultValue(0);
+        
+        builder.Property(r => r.ShareCount)
             .HasDefaultValue(0);
 
         builder.Property(r => r.Tags)
@@ -90,5 +100,8 @@ public class RouteConfiguration : IEntityTypeConfiguration<Route>
         builder.HasIndex(r => r.Privacy);
         builder.HasIndex(r => r.AverageRating);
         builder.HasIndex(r => r.IsFeatured);
+        builder.HasIndex(r => r.ShareToken)
+            .IsUnique()
+            .HasFilter("[ShareToken] IS NOT NULL");
     }
 }
