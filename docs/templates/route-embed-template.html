@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ROUTE_NAME}} - Tripilot</title>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ROUTE_URL}}">
+    <meta property="og:title" content="{{ROUTE_NAME}}">
+    <meta property="og:description" content="{{ROUTE_DESCRIPTION}}">
+    <meta property="og:image" content="{{ROUTE_IMAGE}}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ROUTE_URL}}">
+    <meta property="twitter:title" content="{{ROUTE_NAME}}">
+    <meta property="twitter:description" content="{{ROUTE_DESCRIPTION}}">
+    <meta property="twitter:image" content="{{ROUTE_IMAGE}}">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .route-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .route-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="route-container">
+        <h1 class="route-title">{{ROUTE_NAME}}</h1>
+        <p>Created by {{CREATOR_NAME}}</p>
+        <img src="{{ROUTE_IMAGE}}" alt="{{ROUTE_NAME}}" style="width:100%;max-height:400px;object-fit:cover;border-radius:8px;">
+        <p>{{ROUTE_DESCRIPTION}}</p>
+        <a href="{{ROUTE_URL}}" class="cta-button">View Full Route</a>
+    </div>
+</body>
+</html>
