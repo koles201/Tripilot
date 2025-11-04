@@ -34,7 +34,8 @@ public class GetRouteByShareTokenQueryHandler : IRequestHandler<GetRouteByShareT
         route.ViewCount++;
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var baseUrl = "https://tripilot.com"; // TODO: Get from configuration
+        // TODO: Get base URL from configuration (IConfiguration or appsettings.json)
+        var baseUrl = "https://tripilot.com";
         
         return new RouteSocialMetadata
         {

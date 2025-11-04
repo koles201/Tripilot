@@ -65,13 +65,14 @@ public class AddRouteToCollectionCommandHandler : IRequestHandler<AddRouteToColl
         await _unitOfWork.Repository<RouteCollectionItem>().AddAsync(item);
 
         // Create activity
+        var activityMetadata = new { collectionId = request.CollectionId, collectionName = collection.Name };
         var activity = new UserActivity
         {
             UserId = request.UserId,
             ActivityType = Domain.Enums.ActivityType.RouteAddedToCollection,
             EntityId = request.RouteId,
             EntityType = "Route",
-            Metadata = $"{{\"collectionId\":\"{request.CollectionId}\",\"collectionName\":\"{collection.Name}\"}}",
+            Metadata = System.Text.Json.JsonSerializer.Serialize(activityMetadata),
             IsVisible = collection.IsPublic
         };
         await _unitOfWork.Repository<UserActivity>().AddAsync(activity);

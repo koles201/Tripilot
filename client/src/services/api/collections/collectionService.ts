@@ -51,19 +51,6 @@ export const collectionService = {
     const response = await apiClient.get<CollectionDetail>(`/collections/${id}`);
     return response.data;
   },
-
-  /**
-   * Get current user's collections
-   */
-  async getMyCollections(
-    pageNumber: number = 1,
-    pageSize: number = 20
-  ): Promise<PaginatedCollections> {
-    const response = await apiClient.get<PaginatedCollections>('/collections/my', {
-      params: { pageNumber, pageSize },
-    });
-    return response.data;
-  },
 };
 
 export default collectionService;
