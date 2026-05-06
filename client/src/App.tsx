@@ -7,6 +7,8 @@ import HomePage from './pages/home/HomePage';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ProfilePage } from './pages/auth';
 import { PlaceListPage, PlaceDetailPage } from './pages/places';
 import { RouteListPage, RouteDetailPage, RouteBuilderPage } from './pages/routes';
+import BusinessDashboard from './pages/BusinessDashboard';
+import FavoritesPage from './pages/favorites/FavoritesPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -33,6 +35,8 @@ function App() {
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/business-dashboard" element={<BusinessDashboard />} />
                 
                 {/* Route Planning Routes */}
                 <Route path="/routes" element={<RouteListPage />} />

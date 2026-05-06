@@ -52,6 +52,18 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.RefreshToken)
             .HasMaxLength(500);
 
+        builder.Property(u => u.Bio)
+            .HasMaxLength(500);
+
+        builder.Property(u => u.AvatarUrl)
+            .HasMaxLength(1000);
+
+        builder.Property(u => u.FollowerCount)
+            .HasDefaultValue(0);
+
+        builder.Property(u => u.FollowingCount)
+            .HasDefaultValue(0);
+
         // Audit fields
         builder.Property(u => u.CreatedAt)
             .IsRequired();

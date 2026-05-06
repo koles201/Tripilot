@@ -22,13 +22,18 @@ public class Route : BaseEntity, IAuditableEntity
     
     // Route image
     public string? ImageUrl { get; set; }
-    
+
+    // Sharing
+    public string? ShareToken { get; set; }
+    public bool IsEmbeddable { get; set; } = true;
+
     // Statistics
     public decimal AverageRating { get; set; }
     public int ReviewCount { get; set; }
     public int ViewCount { get; set; }
     public int FavoriteCount { get; set; }
-    
+    public int ShareCount { get; set; }
+
     // Tags for categorization (JSON array)
     public string? Tags { get; set; }
     

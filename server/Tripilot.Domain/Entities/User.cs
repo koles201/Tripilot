@@ -72,6 +72,26 @@ public class User : BaseEntity, IAuditableEntity
     /// </summary>
     public DateTime? LastLoginAt { get; set; }
 
+    /// <summary>
+    /// User's bio/description
+    /// </summary>
+    public string? Bio { get; set; }
+
+    /// <summary>
+    /// User's avatar URL
+    /// </summary>
+    public string? AvatarUrl { get; set; }
+
+    /// <summary>
+    /// Count of users following this user
+    /// </summary>
+    public int FollowerCount { get; set; }
+
+    /// <summary>
+    /// Count of users this user is following
+    /// </summary>
+    public int FollowingCount { get; set; }
+
     // IAuditableEntity implementation
     public DateTime CreatedAt { get; set; }
     public string? CreatedBy { get; set; }

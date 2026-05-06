@@ -35,5 +35,12 @@ public class PlaceMappingProfile : Profile
             .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.Location.City))
             .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Location.Country))
             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category.ToString()));
+
+        // Place -> AdvancedSearchResponse
+        CreateMap<Place, AdvancedSearchResponse>()
+            .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.Location.City))
+            .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Location.Country))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Location.Address))
+            .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category.ToString()));
     }
 }

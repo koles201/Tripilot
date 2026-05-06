@@ -19,6 +19,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<Route> Routes { get; set; } = null!;
     public DbSet<RoutePlace> RoutePlaces { get; set; } = null!;
     public DbSet<Review> Reviews { get; set; } = null!;
+    public DbSet<PlaceClaim> PlaceClaims { get; set; } = null!;
+    public DbSet<Favorite> Favorites { get; set; } = null!;
+    public DbSet<UserFollow> UserFollows { get; set; } = null!;
+    public DbSet<RouteCollection> RouteCollections { get; set; } = null!;
+    public DbSet<RouteCollectionItem> RouteCollectionItems { get; set; } = null!;
+    public DbSet<UserActivity> UserActivities { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

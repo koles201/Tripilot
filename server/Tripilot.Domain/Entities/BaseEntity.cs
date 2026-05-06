@@ -29,6 +29,15 @@ public abstract class BaseEntity
     }
 
     /// <summary>
+    /// Raises a domain event (public wrapper for AddDomainEvent)
+    /// </summary>
+    /// <param name="domainEvent">The domain event to raise</param>
+    public void RaiseDomainEvent(INotification domainEvent)
+    {
+        AddDomainEvent(domainEvent);
+    }
+
+    /// <summary>
     /// Clears all domain events
     /// </summary>
     public void ClearDomainEvents()
